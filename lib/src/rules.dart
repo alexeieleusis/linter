@@ -46,6 +46,7 @@ import 'package:linter/src/rules/library_names.dart';
 import 'package:linter/src/rules/library_prefixes.dart';
 import 'package:linter/src/rules/list_remove_unrelated_type.dart';
 import 'package:linter/src/rules/literal_only_boolean_expressions.dart';
+import 'package:linter/src/rules/metrics.dart';
 import 'package:linter/src/rules/no_adjacent_strings_in_list.dart';
 import 'package:linter/src/rules/no_duplicate_case_values.dart';
 import 'package:linter/src/rules/non_constant_identifier_names.dart';
@@ -148,6 +149,7 @@ void registerLintRules() {
     ..registerDefault(new LibraryPrefixes())
     ..register(new ListRemoveUnrelatedType())
     ..register(new LiteralOnlyBooleanExpressions())
+    ..register(new Metrics())
     ..register(new NoAdjacentStringsInList())
     ..register(new NoDuplicateCaseValues())
     ..registerDefault(new NonConstantIdentifierNames())
