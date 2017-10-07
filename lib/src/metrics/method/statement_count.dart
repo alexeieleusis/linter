@@ -6,8 +6,8 @@ import 'package:linter/src/metrics/metric.dart';
 import 'package:shuttlecock/shuttlecock.dart';
 import 'package:tuple/tuple.dart';
 
-class LinesOfCodeMethodMetric extends MethodMetric {
-  LinesOfCodeMethodMetric({IterableMonad<MetricEvaluation<AstNode>> values})
+class StatementCountMethodMetric extends MethodMetric {
+  StatementCountMethodMetric({IterableMonad<MetricEvaluation<AstNode>> values})
       : super('Method lines of code', 'Statements count in a method', values);
 
   @override
@@ -19,9 +19,9 @@ class LinesOfCodeMethodMetric extends MethodMetric {
   }
 
   @override
-  LinesOfCodeMethodMetric copy(
+  StatementCountMethodMetric copy(
           IterableMonad<MetricEvaluation<MethodDeclaration>> values) =>
-      new LinesOfCodeMethodMetric(values: values ?? this.values);
+      new StatementCountMethodMetric(values: values ?? this.values);
 }
 
 class _StatementCounterVisitor extends SimpleAstVisitor {

@@ -1,7 +1,8 @@
 import 'dart:async';
 
 import 'package:analyzer/dart/ast/ast.dart';
-import 'package:linter/src/metrics/method/lines_of_code.dart';
+import 'package:linter/src/metrics/method/cyclomatic_complexity.dart';
+import 'package:linter/src/metrics/method/statement_count.dart';
 import 'package:linter/src/metrics/metric.dart';
 import 'package:linter/src/util/dart_type_utilities.dart';
 import 'package:meta/meta.dart';
@@ -45,7 +46,10 @@ class ProjectReport {
       : _methodsReport = methodsReport ??
             new Report<MethodDeclaration>(
                 methods ?? new Set(),
-                [new LinesOfCodeMethodMetric()].toSet(),
+                [
+                  new StatementCountMethodMetric(),
+                  new CyclomaticComplexityMethodMetric()
+                ].toSet(),
                 compilationUnits ?? new IterableMonad<CompilationUnit>()),
         _units = compilationUnits ??
             new IterableMonad.fromIterable(new Set<CompilationUnit>());
