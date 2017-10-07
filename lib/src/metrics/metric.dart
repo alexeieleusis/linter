@@ -33,8 +33,17 @@ abstract class Metric<T extends AstNode> {
       IterableMonad<T> targets, IterableMonad<CompilationUnit> units) {
     final newValues = targets.map(
         (target) => new MetricEvaluation(target, computation(target, units)));
-    newValues.forEach(print);
     return copy(newValues);
+  }
+
+  @override
+  String toString() {
+    StringBuffer buffer = new StringBuffer('Metric{name: $name, values:\n');
+    values.forEach((value) {
+      buffer.writeln('\t\t$value');
+    });
+    buffer.write('\n}');
+    return buffer.toString();
   }
 }
 

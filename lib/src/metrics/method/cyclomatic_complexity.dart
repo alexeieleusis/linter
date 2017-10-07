@@ -12,7 +12,7 @@ import 'package:tuple/tuple.dart';
 class CyclomaticComplexityMethodMetric extends MethodMetric {
   CyclomaticComplexityMethodMetric(
       {IterableMonad<MetricEvaluation<AstNode>> values})
-      : super('Method lines of code', 'Statements count in a method', values);
+      : super('Method cyclomatic complexity', '', values);
 
   @override
   num computation(
@@ -101,6 +101,7 @@ class _CyclomaticComplexityVisitor extends SimpleAstVisitor {
     node.visitChildren(this);
   }
 
+  @override
   void visitExpressionFunctionBody(ExpressionFunctionBody node) {
     _incrementCounter(node);
     node.visitChildren(this);

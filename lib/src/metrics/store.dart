@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:linter/src/metrics/method/cyclomatic_complexity.dart';
+import 'package:linter/src/metrics/method/parameter_count.dart';
 import 'package:linter/src/metrics/method/statement_count.dart';
 import 'package:linter/src/metrics/metric.dart';
 import 'package:linter/src/util/dart_type_utilities.dart';
@@ -47,8 +48,9 @@ class ProjectReport {
             new Report<MethodDeclaration>(
                 methods ?? new Set(),
                 [
+                  new CyclomaticComplexityMethodMetric(),
+                  new ParameterCountMethodMetric(),
                   new StatementCountMethodMetric(),
-                  new CyclomaticComplexityMethodMetric()
                 ].toSet(),
                 compilationUnits ?? new IterableMonad<CompilationUnit>()),
         _units = compilationUnits ??
@@ -71,6 +73,9 @@ class ProjectReport {
       new ProjectReport(
           compilationUnits: compilationUnits ?? _units,
           methodsReport: methodsReport ?? _methodsReport);
+
+  @override
+  String toString() => 'ProjectReport{_methodsReport: $_methodsReport}';
 }
 
 @immutable
@@ -94,4 +99,16 @@ class Report<T extends AstNode> {
           Set<Metric<T>> metrics,
           IterableMonad<CompilationUnit> units}) =>
       new Report(targets ?? this.targets, metrics ?? _metrics, units ?? _units);
+
+  @override
+  String toString() {
+    StringBuffer buffer =
+        new StringBuffer('Report{level: ${targets.first.runtimeType}'
+            '\n_metrics:\n');
+    _metrics.forEach((metric) {
+      buffer.writeln('\t$metric');
+    });
+    buffer.write('\n}');
+    return buffer.toString();
+  }
 }
