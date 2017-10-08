@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:linter/src/metrics/method/cyclomatic_complexity.dart';
+import 'package:linter/src/metrics/method/efferent_coupling.dart';
 import 'package:linter/src/metrics/method/parameter_count.dart';
 import 'package:linter/src/metrics/method/statement_count.dart';
 import 'package:linter/src/metrics/metric.dart';
@@ -19,8 +20,10 @@ class MetricsStore extends Store<ProjectReport> {
   }
 
   MetricsStore._(this._controller)
-      : super(new ProjectReport(),
-            new IterableMonad.fromIterable([_controller.stream]));
+      : super(
+            new ProjectReport(),
+            new IterableMonad.fromIterable(
+                [new StreamMonad(_controller.stream)]));
 
   void addCompilationUnit(CompilationUnit unit) {
     _controller.add((report) => DartTypeUtilities
@@ -49,6 +52,7 @@ class ProjectReport {
                 methods ?? new Set(),
                 [
                   new CyclomaticComplexityMethodMetric(),
+                  new EfferentCouplingMethodMetric(),
                   new ParameterCountMethodMetric(),
                   new StatementCountMethodMetric(),
                 ].toSet(),
@@ -98,7 +102,8 @@ class Report<T extends AstNode> {
           {Set<T> targets,
           Set<Metric<T>> metrics,
           IterableMonad<CompilationUnit> units}) =>
-      new Report(targets ?? this.targets, metrics ?? _metrics, units ?? _units);
+      new Report(targets ?? this.targets.toSet(), metrics ?? _metrics.toSet(),
+          units ?? _units);
 
   @override
   String toString() {

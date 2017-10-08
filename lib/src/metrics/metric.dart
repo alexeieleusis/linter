@@ -31,9 +31,11 @@ abstract class Metric<T extends AstNode> {
 
   Metric<AstNode> evaluate(
       IterableMonad<T> targets, IterableMonad<CompilationUnit> units) {
-    final newValues = targets.map(
+    final unsortedValues = targets.map(
         (target) => new MetricEvaluation(target, computation(target, units)));
-    return copy(newValues);
+    final sortedValues = unsortedValues.toList(growable: false)
+      ..sort(metricEvaluationComparator);
+    return copy(new IterableMonad.fromIterable(sortedValues));
   }
 
   @override
