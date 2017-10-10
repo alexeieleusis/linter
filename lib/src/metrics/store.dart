@@ -2,7 +2,10 @@ import 'dart:async';
 
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:linter/src/metrics/method/cyclomatic_complexity.dart';
+import 'package:linter/src/metrics/method/efferent_coupling.dart';
+import 'package:linter/src/metrics/method/parameter_count.dart';
 import 'package:linter/src/metrics/method/statement_count.dart';
+import 'package:linter/src/metrics/method/variable_count.dart';
 import 'package:linter/src/metrics/metric.dart';
 import 'package:linter/src/util/dart_type_utilities.dart';
 import 'package:meta/meta.dart';
@@ -18,8 +21,10 @@ class MetricsStore extends Store<ProjectReport> {
   }
 
   MetricsStore._(this._controller)
-      : super(new ProjectReport(),
-            new IterableMonad.fromIterable([_controller.stream]));
+      : super(
+            new ProjectReport(),
+            new IterableMonad.fromIterable(
+                [new StreamMonad(_controller.stream)]));
 
   void addCompilationUnit(CompilationUnit unit) {
     _controller.add((report) => DartTypeUtilities
@@ -47,8 +52,11 @@ class ProjectReport {
             new Report<MethodDeclaration>(
                 methods ?? new Set(),
                 [
+                  new CyclomaticComplexityMethodMetric(),
+                  new EfferentCouplingMethodMetric(),
+                  new ParameterCountMethodMetric(),
                   new StatementCountMethodMetric(),
-                  new CyclomaticComplexityMethodMetric()
+                  new VariableCountMethodMetric(),
                 ].toSet(),
                 compilationUnits ?? new IterableMonad<CompilationUnit>()),
         _units = compilationUnits ??
@@ -71,6 +79,9 @@ class ProjectReport {
       new ProjectReport(
           compilationUnits: compilationUnits ?? _units,
           methodsReport: methodsReport ?? _methodsReport);
+
+  @override
+  String toString() => 'ProjectReport{_methodsReport: $_methodsReport}';
 }
 
 @immutable
@@ -93,5 +104,18 @@ class Report<T extends AstNode> {
           {Set<T> targets,
           Set<Metric<T>> metrics,
           IterableMonad<CompilationUnit> units}) =>
-      new Report(targets ?? this.targets, metrics ?? _metrics, units ?? _units);
+      new Report(targets ?? this.targets.toSet(), metrics ?? _metrics.toSet(),
+          units ?? _units);
+
+  @override
+  String toString() {
+    StringBuffer buffer =
+        new StringBuffer('Report{level: ${targets.first.runtimeType}'
+            '\n_metrics:\n');
+    _metrics.forEach((metric) {
+      buffer.writeln('\t$metric');
+    });
+    buffer.write('\n}');
+    return buffer.toString();
+  }
 }

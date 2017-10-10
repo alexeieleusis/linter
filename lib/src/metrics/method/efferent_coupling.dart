@@ -1,36 +1,31 @@
-import 'dart:async';
-
 import 'package:analyzer/dart/ast/ast.dart';
-import 'package:analyzer/dart/ast/token.dart';
 import 'package:analyzer/dart/ast/visitor.dart';
+import 'package:analyzer/dart/element/element.dart';
 import 'package:linter/src/metrics/metric.dart';
 import 'package:shuttlecock/shuttlecock.dart';
-import 'package:tuple/tuple.dart';
 
-// https://www.ndepend.com/docs/code-metrics#CC
-// if | while | for | foreach | case | default | continue | goto | && | || | catch | ternary operator ?: | ??
-class CyclomaticComplexityMethodMetric extends MethodMetric {
-  CyclomaticComplexityMethodMetric(
+class EfferentCouplingMethodMetric extends MethodMetric {
+  EfferentCouplingMethodMetric(
       {IterableMonad<MetricEvaluation<AstNode>> values})
-      : super('Method cyclomatic complexity', '', values);
+      : super('Method efferent coupling',
+            'Count of methods and functions a method depends on.', values);
 
   @override
   num computation(
       MethodDeclaration target, IterableMonad<CompilationUnit> units) {
-    final visitor = new _CyclomaticComplexityVisitor();
+    final visitor = new _EfferentCouplingVisitor();
     target.visitChildren(visitor);
-    return visitor._count;
+    return visitor._invocationsDeclarations.length;
   }
 
   @override
-  CyclomaticComplexityMethodMetric copy(
+  EfferentCouplingMethodMetric copy(
           IterableMonad<MetricEvaluation<MethodDeclaration>> values) =>
-      new CyclomaticComplexityMethodMetric(values: values ?? this.values);
+      new EfferentCouplingMethodMetric(values: values ?? this.values);
 }
 
-class _CyclomaticComplexityVisitor extends SimpleAstVisitor {
-  final _counter = new StreamController<Tuple2<int, String>>();
-  int _count = 1;
+class _EfferentCouplingVisitor extends SimpleAstVisitor {
+  final Set<AstNode> _invocationsDeclarations = new Set<AstNode>();
 
   @override
   void visitAdjacentStrings(AdjacentStrings node) {
@@ -38,7 +33,7 @@ class _CyclomaticComplexityVisitor extends SimpleAstVisitor {
   }
 
   @override
-  void visitArgumentList(ArgumentList node) {
+  void visitAssertStatement(AssertStatement node) {
     node.visitChildren(this);
   }
 
@@ -54,17 +49,6 @@ class _CyclomaticComplexityVisitor extends SimpleAstVisitor {
 
   @override
   void visitBinaryExpression(BinaryExpression node) {
-    final operatorType = node.operator.type;
-    const booleanOperators = const <TokenType>[
-      TokenType.AMPERSAND_AMPERSAND,
-      TokenType.BAR_BAR,
-      TokenType.QUESTION_QUESTION,
-      TokenType.QUESTION_QUESTION_EQ,
-      TokenType.QUESTION
-    ];
-    if (booleanOperators.contains(operatorType)) {
-      _incrementCounter(node);
-    }
     node.visitChildren(this);
   }
 
@@ -85,25 +69,31 @@ class _CyclomaticComplexityVisitor extends SimpleAstVisitor {
 
   @override
   void visitCatchClause(CatchClause node) {
-    _incrementCounter(node);
     node.visitChildren(this);
   }
 
   @override
   void visitConditionalExpression(ConditionalExpression node) {
-    _incrementCounter(node);
+    node.visitChildren(this);
+  }
+
+  @override
+  void visitDeclaredIdentifier(DeclaredIdentifier node) {
     node.visitChildren(this);
   }
 
   @override
   void visitDoStatement(DoStatement node) {
-    _incrementCounter(node);
+    node.visitChildren(this);
+  }
+
+  @override
+  void visitDottedName(DottedName node) {
     node.visitChildren(this);
   }
 
   @override
   void visitExpressionFunctionBody(ExpressionFunctionBody node) {
-    _incrementCounter(node);
     node.visitChildren(this);
   }
 
@@ -113,18 +103,7 @@ class _CyclomaticComplexityVisitor extends SimpleAstVisitor {
   }
 
   @override
-  void visitFieldDeclaration(FieldDeclaration node) {
-    node.visitChildren(this);
-  }
-
-  @override
-  void visitFieldFormalParameter(FieldFormalParameter node) {
-    node.visitChildren(this);
-  }
-
-  @override
   void visitForEachStatement(ForEachStatement node) {
-    _incrementCounter(node);
     node.visitChildren(this);
   }
 
@@ -135,7 +114,6 @@ class _CyclomaticComplexityVisitor extends SimpleAstVisitor {
 
   @override
   void visitForStatement(ForStatement node) {
-    _incrementCounter(node);
     node.visitChildren(this);
   }
 
@@ -160,8 +138,17 @@ class _CyclomaticComplexityVisitor extends SimpleAstVisitor {
   }
 
   @override
+  void visitFunctionTypeAlias(FunctionTypeAlias node) {
+    node.visitChildren(this);
+  }
+
+  @override
+  void visitFunctionTypedFormalParameter(FunctionTypedFormalParameter node) {
+    node.visitChildren(this);
+  }
+
+  @override
   void visitIfStatement(IfStatement node) {
-    _incrementCounter(node);
     node.visitChildren(this);
   }
 
@@ -206,7 +193,18 @@ class _CyclomaticComplexityVisitor extends SimpleAstVisitor {
   }
 
   @override
+  void visitMethodDeclaration(MethodDeclaration node) {
+    node.visitChildren(this);
+  }
+
+  @override
   void visitMethodInvocation(MethodInvocation node) {
+    _incrementCounter(node.methodName.bestElement);
+    node.visitChildren(this);
+  }
+
+  @override
+  void visitNamedExpression(NamedExpression node) {
     node.visitChildren(this);
   }
 
@@ -216,7 +214,34 @@ class _CyclomaticComplexityVisitor extends SimpleAstVisitor {
   }
 
   @override
+  void visitPostfixExpression(PostfixExpression node) {
+    node.visitChildren(this);
+  }
+
+  @override
+  void visitPrefixedIdentifier(PrefixedIdentifier node) {
+    node.visitChildren(this);
+  }
+
+  @override
   void visitPrefixExpression(PrefixExpression node) {
+    node.visitChildren(this);
+  }
+
+  @override
+  void visitPropertyAccess(PropertyAccess node) {
+    _incrementCounter(node.propertyName.bestElement);
+    node.visitChildren(this);
+  }
+
+  @override
+  void visitRedirectingConstructorInvocation(
+      RedirectingConstructorInvocation node) {
+    node.visitChildren(this);
+  }
+
+  @override
+  void visitRethrowExpression(RethrowExpression node) {
     node.visitChildren(this);
   }
 
@@ -226,29 +251,39 @@ class _CyclomaticComplexityVisitor extends SimpleAstVisitor {
   }
 
   @override
+  void visitSimpleFormalParameter(SimpleFormalParameter node) {
+    node.visitChildren(this);
+  }
+
+  @override
+  void visitSimpleIdentifier(SimpleIdentifier node) {
+    node.visitChildren(this);
+  }
+
+  @override
+  void visitSimpleStringLiteral(SimpleStringLiteral node) {
+    node.visitChildren(this);
+  }
+
+  @override
   void visitStringInterpolation(StringInterpolation node) {
     node.visitChildren(this);
   }
 
   @override
-  void visitSuperConstructorInvocation(SuperConstructorInvocation node) {
-    node.visitChildren(this);
-  }
-
-  @override
   void visitSuperExpression(SuperExpression node) {
+    // Count dependencies of the method on the base class.
+    node.bestParameterElement.computeNode().accept(this);
     node.visitChildren(this);
   }
 
   @override
   void visitSwitchCase(SwitchCase node) {
-    _incrementCounter(node);
     node.visitChildren(this);
   }
 
   @override
   void visitSwitchDefault(SwitchDefault node) {
-    _incrementCounter(node);
     node.visitChildren(this);
   }
 
@@ -258,22 +293,17 @@ class _CyclomaticComplexityVisitor extends SimpleAstVisitor {
   }
 
   @override
+  void visitThisExpression(ThisExpression node) {
+    node.visitChildren(this);
+  }
+
+  @override
   void visitThrowExpression(ThrowExpression node) {
     node.visitChildren(this);
   }
 
   @override
-  void visitTopLevelVariableDeclaration(TopLevelVariableDeclaration node) {
-    node.visitChildren(this);
-  }
-
-  @override
   void visitTryStatement(TryStatement node) {
-    node.visitChildren(this);
-  }
-
-  @override
-  void visitTypeArgumentList(TypeArgumentList node) {
     node.visitChildren(this);
   }
 
@@ -294,7 +324,6 @@ class _CyclomaticComplexityVisitor extends SimpleAstVisitor {
 
   @override
   void visitWhileStatement(WhileStatement node) {
-    _incrementCounter(node);
     node.visitChildren(this);
   }
 
@@ -303,8 +332,11 @@ class _CyclomaticComplexityVisitor extends SimpleAstVisitor {
     node.visitChildren(this);
   }
 
-  void _incrementCounter(AstNode node) {
-    _count++;
-    _counter.add(new Tuple2(1, node.toString()));
+  void _incrementCounter(Element element) {
+    if (element == null) {
+      return;
+    }
+
+    _invocationsDeclarations.add(element.computeNode());
   }
 }

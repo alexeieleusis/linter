@@ -31,10 +31,21 @@ abstract class Metric<T extends AstNode> {
 
   Metric<AstNode> evaluate(
       IterableMonad<T> targets, IterableMonad<CompilationUnit> units) {
-    final newValues = targets.map(
+    final unsortedValues = targets.map(
         (target) => new MetricEvaluation(target, computation(target, units)));
-    newValues.forEach(print);
-    return copy(newValues);
+    final sortedValues = unsortedValues.toList(growable: false)
+      ..sort(metricEvaluationComparator);
+    return copy(new IterableMonad.fromIterable(sortedValues));
+  }
+
+  @override
+  String toString() {
+    StringBuffer buffer = new StringBuffer('Metric{name: $name, values:\n');
+    values.forEach((value) {
+      buffer.writeln('\t\t$value');
+    });
+    buffer.write('\n}');
+    return buffer.toString();
   }
 }
 
