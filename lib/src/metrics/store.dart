@@ -5,6 +5,7 @@ import 'package:linter/src/metrics/method/cyclomatic_complexity.dart';
 import 'package:linter/src/metrics/method/efferent_coupling.dart';
 import 'package:linter/src/metrics/method/parameter_count.dart';
 import 'package:linter/src/metrics/method/statement_count.dart';
+import 'package:linter/src/metrics/method/variable_count.dart';
 import 'package:linter/src/metrics/metric.dart';
 import 'package:linter/src/util/dart_type_utilities.dart';
 import 'package:meta/meta.dart';
@@ -55,6 +56,7 @@ class ProjectReport {
                   new EfferentCouplingMethodMetric(),
                   new ParameterCountMethodMetric(),
                   new StatementCountMethodMetric(),
+                  new VariableCountMethodMetric(),
                 ].toSet(),
                 compilationUnits ?? new IterableMonad<CompilationUnit>()),
         _units = compilationUnits ??
