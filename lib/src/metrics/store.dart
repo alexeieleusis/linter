@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:linter/src/metrics/method/cyclomatic_complexity.dart';
 import 'package:linter/src/metrics/method/efferent_coupling.dart';
+import 'package:linter/src/metrics/method/nesting_depth.dart';
 import 'package:linter/src/metrics/method/parameter_count.dart';
 import 'package:linter/src/metrics/method/statement_count.dart';
 import 'package:linter/src/metrics/method/variable_count.dart';
@@ -54,6 +55,7 @@ class ProjectReport {
                 [
                   new CyclomaticComplexityMethodMetric(),
                   new EfferentCouplingMethodMetric(),
+                  new NestingDepthMethodMetric(),
                   new ParameterCountMethodMetric(),
                   new StatementCountMethodMetric(),
                   new VariableCountMethodMetric(),
