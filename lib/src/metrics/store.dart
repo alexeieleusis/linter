@@ -64,6 +64,10 @@ class ProjectReport {
         _units = compilationUnits ??
             new IterableMonad.fromIterable(new Set<CompilationUnit>());
 
+  Report<MethodDeclaration> get methodsReport => _methodsReport;
+
+  IterableMonad<CompilationUnit> get units => _units;
+
   ProjectReport addCompilationUnit(CompilationUnit unit) {
     final newUnits = new IterableMonad.fromIterable(_units.toSet()..add(unit));
     return copy(compilationUnits: newUnits);
@@ -97,6 +101,8 @@ class Report<T extends AstNode> {
       : this.targets = new IterableMonad.fromIterable(targets),
         this._metrics = new IterableMonad.fromIterable(metrics),
         this._units = units;
+
+  IterableMonad<Metric<T>> get metrics => _metrics;
 
   Report<T> compute() => copy(
       metrics:

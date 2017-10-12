@@ -14,7 +14,6 @@ class VariableCountMethodMetric extends MethodMetric {
   @override
   num computation(
       MethodDeclaration target, IterableMonad<CompilationUnit> units) {
-    print('computation ${target.name.name}');
     final visitor = new _VariableCounterVisitor();
     target.body.visitChildren(visitor);
     return visitor._count;
@@ -71,7 +70,6 @@ class _VariableCounterVisitor extends RecursiveAstVisitor {
   }
 
   void _incrementCounter(AstNode node) {
-    print('_incrementCounter $node');
     _count++;
     _counter.add(new Tuple2(1, node.toString()));
   }

@@ -2,10 +2,14 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
+import 'dart:async';
+import 'dart:io';
+
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/ast/visitor.dart';
 import 'package:linter/src/analyzer.dart';
 import 'package:linter/src/metrics/store.dart';
+import 'package:shuttlecock/shuttlecock.dart';
 
 const _desc = r' ';
 
@@ -24,6 +28,27 @@ const _details = r'''
 ```
 
 ''';
+
+Future<_MethodRow> _toRow(
+    MethodDeclaration method, ProjectReport report) async {
+  final CompilationUnit unit = method.root;
+  final path = unit.element.source.toString();
+  final ClassDeclaration clazz =
+      method.getAncestor((a) => a is ClassDeclaration);
+  final className = clazz.name.name;
+  final values = new IterableMonad.fromIterable(report.methodsReport.metrics
+      .map((metric) =>
+          metric.values.firstWhere((v) => v.target == method).value));
+  final String sourceCode = new File(path).readAsStringSync();
+  final matches = new RegExp('\n').allMatches(sourceCode).toList();
+  final startLine =
+      1 + matches.indexOf(matches.lastWhere((m) => m.start < method.offset));
+  final endLine = 1 +
+      matches.indexOf(
+          matches.lastWhere((m) => m.start < method.offset + method.length));
+  var methodRow = new _MethodRow(path, className, method, startLine, endLine, values);
+  return methodRow;
+}
 
 // Elastography
 // Documentation todos.
@@ -44,6 +69,22 @@ class Metrics extends LintRule {
   AstVisitor getVisitor() => _visitor;
 }
 
+class _MethodRow {
+  final String filePath;
+  final String className;
+  final MethodDeclaration method;
+  final int startLine;
+  final int endLine;
+  final IterableMonad<num> values;
+
+  _MethodRow(this.filePath, this.className, this.method, this.startLine,
+      this.endLine, this.values);
+
+  @override
+  String toString() =>
+      '$filePath, $className, ${method.name.name}, $startLine, $endLine, ${values.join(', ')}';
+}
+
 class _Visitor extends SimpleAstVisitor {
   final LintRule rule;
   final MetricsStore store;
@@ -51,7 +92,12 @@ class _Visitor extends SimpleAstVisitor {
     store.changes
         .debounceTime(const Duration(seconds: 5))
         .listen((projectReport) {
-      print(projectReport.compute());
+      final report = projectReport.compute();
+      Future
+          .wait(report.methodsReport.targets.map((m) => _toRow(m, report)))
+          .then((rows) {
+        rows.forEach(print);
+      });
     });
   }
 
