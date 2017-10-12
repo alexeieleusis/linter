@@ -54,7 +54,7 @@ class MetricEvaluation<T extends AstNode> {
   final T target;
   final num value;
 
-  MetricEvaluation(this.target, this.value);
+  const MetricEvaluation(this.target, this.value);
 
   @override
   String toString() => 'MetricEvaluation{target: $target, value: $value}';

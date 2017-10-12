@@ -273,7 +273,7 @@ class _EfferentCouplingVisitor extends SimpleAstVisitor {
   @override
   void visitSuperExpression(SuperExpression node) {
     // Count dependencies of the method on the base class.
-    node.bestParameterElement.computeNode().accept(this);
+    node.bestParameterElement?.computeNode()?.accept(this);
     node.visitChildren(this);
   }
 

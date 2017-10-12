@@ -70,7 +70,7 @@ class _Visitor extends RecursiveAstVisitor {
 
   @override
   void visitMethodInvocation(MethodInvocation node) {
-    if (node.operator.type != TokenType.QUESTION_PERIOD) {
+    if (node.operator?.type != TokenType.QUESTION_PERIOD) {
       node.visitChildren(this);
       return;
     }
