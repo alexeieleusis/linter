@@ -1,32 +1,29 @@
-import 'dart:async';
-
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/ast/visitor.dart';
 import 'package:linter/src/metrics/metric.dart';
 import 'package:shuttlecock/shuttlecock.dart';
-import 'package:tuple/tuple.dart';
 
-class VariableCountMethodMetric extends MethodMetric {
-  VariableCountMethodMetric({IterableMonad<MetricEvaluation<AstNode>> values})
-      : super('method_variable_count', 'Method number of variables',
-            'Variable count in a method', values);
+class MutableVariableCountMethodMetric extends MethodMetric {
+  MutableVariableCountMethodMetric(
+      {IterableMonad<MetricEvaluation<AstNode>> values})
+      : super('method_mutable_variable_count',
+            'Number of mutable variables in a method', '', values);
 
   @override
   num computation(
       MethodDeclaration target, IterableMonad<CompilationUnit> units) {
-    final visitor = new _VariableCounterVisitor();
+    final visitor = new _Visitor();
     target.body.visitChildren(visitor);
     return visitor._count;
   }
 
   @override
-  VariableCountMethodMetric copy(
+  MutableVariableCountMethodMetric copy(
           IterableMonad<MetricEvaluation<MethodDeclaration>> values) =>
-      new VariableCountMethodMetric(values: values ?? this.values);
+      new MutableVariableCountMethodMetric(values: values ?? this.values);
 }
 
-class _VariableCounterVisitor extends RecursiveAstVisitor {
-  final _counter = new StreamController<Tuple2<int, String>>();
+class _Visitor extends RecursiveAstVisitor {
   int _count = 0;
 
   @override
@@ -66,11 +63,14 @@ class _VariableCounterVisitor extends RecursiveAstVisitor {
 
   @override
   void visitVariableDeclaration(VariableDeclaration node) {
+    if (!node.isFinal && !node.isConst && !node.isSynthetic) {
+      node.visitChildren(this);
+      return;
+    }
     _incrementCounter(node);
   }
 
   void _incrementCounter(AstNode node) {
     _count++;
-    _counter.add(new Tuple2(1, node.toString()));
   }
 }

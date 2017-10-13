@@ -4,7 +4,7 @@ import 'package:shuttlecock/shuttlecock.dart';
 
 class ParameterCountMethodMetric extends MethodMetric {
   ParameterCountMethodMetric({IterableMonad<MetricEvaluation<AstNode>> values})
-      : super('Method parameters count', '', values);
+      : super('method_parameter_count', 'Method parameters count', '', values);
 
   @override
   num computation(

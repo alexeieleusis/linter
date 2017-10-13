@@ -12,7 +12,8 @@ import 'package:tuple/tuple.dart';
 class CyclomaticComplexityMethodMetric extends MethodMetric {
   CyclomaticComplexityMethodMetric(
       {IterableMonad<MetricEvaluation<AstNode>> values})
-      : super('Method cyclomatic complexity', '', values);
+      : super('method_cyclomatic_complexity', 'Method cyclomatic complexity',
+            '', values);
 
   @override
   num computation(

@@ -1,9 +1,13 @@
 import 'dart:async';
 
 import 'package:analyzer/dart/ast/ast.dart';
+import 'package:linter/src/metrics/method/assignment_count.dart';
 import 'package:linter/src/metrics/method/cyclomatic_complexity.dart';
 import 'package:linter/src/metrics/method/efferent_coupling.dart';
+import 'package:linter/src/metrics/method/free_variable_mutation_count.dart';
+import 'package:linter/src/metrics/method/mutable_variable_count.dart';
 import 'package:linter/src/metrics/method/nesting_depth.dart';
+import 'package:linter/src/metrics/method/optional_parameter_count.dart';
 import 'package:linter/src/metrics/method/parameter_count.dart';
 import 'package:linter/src/metrics/method/statement_count.dart';
 import 'package:linter/src/metrics/method/variable_count.dart';
@@ -53,9 +57,13 @@ class ProjectReport {
             new Report<MethodDeclaration>(
                 methods ?? new Set(),
                 [
+                  new AssignmentCountMethodMetric(),
                   new CyclomaticComplexityMethodMetric(),
                   new EfferentCouplingMethodMetric(),
+                  new FreeVariableMutationCountMethodMetric(),
+                  new MutableVariableCountMethodMetric(),
                   new NestingDepthMethodMetric(),
+                  new OptionalParameterCountMethodMetric(),
                   new ParameterCountMethodMetric(),
                   new StatementCountMethodMetric(),
                   new VariableCountMethodMetric(),
