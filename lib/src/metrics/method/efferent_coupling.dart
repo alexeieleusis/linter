@@ -7,7 +7,7 @@ import 'package:shuttlecock/shuttlecock.dart';
 class EfferentCouplingMethodMetric extends MethodMetric {
   EfferentCouplingMethodMetric(
       {IterableMonad<MetricEvaluation<AstNode>> values})
-      : super('Method efferent coupling',
+      : super('method_efferent_coupling', 'Method efferent coupling',
             'Count of methods and functions a method depends on.', values);
 
   @override

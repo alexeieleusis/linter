@@ -42,11 +42,12 @@ Future<_MethodRow> _toRow(
   final String sourceCode = new File(path).readAsStringSync();
   final matches = new RegExp('\n').allMatches(sourceCode).toList();
   final startLine =
-      1 + matches.indexOf(matches.lastWhere((m) => m.start < method.offset));
-  final endLine = 1 +
+      2 + matches.indexOf(matches.lastWhere((m) => m.start < method.offset));
+  final endLine = 2 +
       matches.indexOf(
           matches.lastWhere((m) => m.start < method.offset + method.length));
-  var methodRow = new _MethodRow(path, className, method, startLine, endLine, values);
+  var methodRow =
+      new _MethodRow(path, className, method, startLine, endLine, values);
   return methodRow;
 }
 
@@ -96,7 +97,14 @@ class _Visitor extends SimpleAstVisitor {
       Future
           .wait(report.methodsReport.targets.map((m) => _toRow(m, report)))
           .then((rows) {
-        rows.forEach(print);
+        final path = Directory.current.path;
+        StringBuffer buffer = new StringBuffer('file,class,method,'
+            '${report.methodsReport.metrics.map((m) => m.key).join(',')}');
+        rows.forEach((r) {
+          buffer.writeln(r.toString().replaceAll('$path/', ''));
+        });
+        final reportFile = new File('elastograph-report.txt');
+        reportFile.writeAsString(buffer.toString());
       });
     });
   }

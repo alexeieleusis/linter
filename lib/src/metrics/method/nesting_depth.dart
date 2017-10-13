@@ -8,7 +8,8 @@ import 'package:shuttlecock/shuttlecock.dart';
 // https://www.ndepend.com/docs/code-metrics#ILNestingDepth
 class NestingDepthMethodMetric extends MethodMetric {
   NestingDepthMethodMetric({IterableMonad<MetricEvaluation<AstNode>> values})
-      : super('Method nesting depth metric', '', values);
+      : super(
+            'method_nesting_depth', 'Method nesting depth metric', '', values);
 
   @override
   num computation(

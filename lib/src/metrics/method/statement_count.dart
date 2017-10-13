@@ -8,7 +8,8 @@ import 'package:tuple/tuple.dart';
 
 class StatementCountMethodMetric extends MethodMetric {
   StatementCountMethodMetric({IterableMonad<MetricEvaluation<AstNode>> values})
-      : super('Method lines of code', 'Statements count in a method', values);
+      : super('method_statement_count', 'Method lines of code',
+            'Statements count in a method', values);
 
   @override
   num computation(

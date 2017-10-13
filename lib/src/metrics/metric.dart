@@ -8,19 +8,20 @@ int metricEvaluationComparator<T extends AstNode>(
 
 @immutable
 abstract class MethodMetric extends Metric<MethodDeclaration> {
-  MethodMetric(
-      String name, String description, IterableMonad<MetricEvaluation> values)
-      : super(name, description, values: values);
+  MethodMetric(String key, String name, String description,
+      IterableMonad<MetricEvaluation> values)
+      : super(key, name, description, values: values);
 }
 
 @immutable
 abstract class Metric<T extends AstNode> {
+  final String key;
   final String name;
   final String description;
 
   final IterableMonad<MetricEvaluation<T>> values;
 
-  Metric(this.name, this.description,
+  Metric(this.key, this.name, this.description,
       {IterableMonad<MetricEvaluation<T>> values})
       : values = values ?? new IterableMonad.fromIterable(new Set());
 
